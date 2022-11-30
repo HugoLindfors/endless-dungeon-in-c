@@ -4,84 +4,124 @@
 #include <time.h>
 #include <math.h>
 
-typedef const enum neighbor { up, right, down, left };
-
-typedef struct Node
-{
-    bool player_can_walk[4];
-} Node;
+typedef enum neighbor { up, right, down, left } neighbor;
+typedef enum maze_block_relative_position { first, second, third, last } maze_block_relative_position;
+typedef enum tile_relative_position { t_first, t_middle, t_last } tile_relative_position;
 
 typedef struct Tile
 {
-
+    Vector2 position;
+    bool is_blocked;
 } Tile;
+
+typedef struct Node
+{
+    Vector2 position;
+    bool is_walkable[4];
+    Tile tile[3][3];
+} Node;
 
 static const int screen_width = 800;
 static const int screen_height = 450;
 
 Node maze_block[4][4];
 
-main()
+void UpdateAndDrawMaze(void)
 {
-    InitWindow(screen_width, screen_height, "Maze Generate");
-    SetTargetFPS(60);   
-
-    while (!WindowShouldClose())
+    // Update
+    for (int row = 0; row < 4; row++)
     {
-        // Update
-        for (int x = 0; x < 4; x++)
+        for (int column = 0; column < 4; column++)
         {
-            for (int y = 0; y < 4; y++)
+            Node current_maze_block = maze_block[row][column];
+
+            if ( row == first && column == first) 
             {
-                if (x == 0 && y == 0) // check for upper-left-corner node
-                {
-                    maze_block[0][0].player_can_walk[up] = false;
-                    maze_block[0][0].player_can_walk[left] = false;
-                }
+                maze_block[row][column].is_walkable[up] = false;
+                maze_block[row][column].is_walkable[left] = false;
+            }
 
-                else if (x == 3 && y == 0) // check for upper-right-corner node
-                {
-                    maze_block[0][0].player_can_walk[up] = false;
-                    maze_block[0][0].player_can_walk[right] = false;
-                }
+            else if ( row == first && column == last) 
+            {
+                maze_block[row][column].is_walkable[up] = false;
+                maze_block[row][column].is_walkable[right] = false;
+            }
 
-                else if (x == 0 && y == 3) // check for lower-left-corner node
-                {
-                    maze_block[0][0].player_can_walk[down] = false;
-                    maze_block[0][0].player_can_walk[left] = false;
-                }
+            else if ( row == last && column == first) 
+            {
+                maze_block[row][column].is_walkable[down] = false;
+                maze_block[row][column].is_walkable[left] = false;
+            }
 
-                else if (x == 3 && y == 3) // check for lower-right-corner node
-                {
-                    maze_block[0][0].player_can_walk[down] = false;
-                    maze_block[0][0].player_can_walk[right] = false;
-                }
+            else if ( row == last && column == first) 
+            {
+                maze_block[row][column].is_walkable[down] = false;
+                maze_block[row][column].is_walkable[right] = false;
+            }
 
-
-                else if (y == 0) // check for upper-edge nodes
+            for (int t_row = 0; t_row < 3; t_row++)
+            {
+                for (int t_column = 0; t_column < 3; t_column++)
                 {
-                    maze_block[0][0].player_can_walk[up] = false;
-                }
 
-                else if (x == 3) // check for right-edge nodes
-                {
-                    maze_block[0][0].player_can_walk[right] = false;
-                }
+                    if ( t_row == t_first && t_column == t_first )
+                    {
+                        current_maze_block.tile[t_row][t_column].is_blocked = true;
+                    }
 
-                else if (x == 3) // check for lower-edge nodes
-                {
-                    maze_block[0][0].player_can_walk[down] = false;
-                }
+                    else if ( t_row == t_first && t_column == t_last )
+                    {
+                        current_maze_block.tile[t_row][t_column].is_blocked = true;
+                    }
 
-                else if (x == 3) // check for left-edge nodes
-                {
-                    maze_block[0][0].player_can_walk[left] = false;
+                    else if ( t_row == t_last && t_column == t_first )
+                    {
+                        current_maze_block.tile[t_row][t_column].is_blocked = true;
+                    }
+
+                    else if ( t_row == t_last && t_column == t_last )
+                    {
+                        current_maze_block.tile[t_row][t_column].is_blocked = true;
+                    }
                 }
             }
         }
+    }
 
-        // Draw
+    // Draw
+    BeginDrawing();
+        ClearBackground(BLUE);
+        for (int row = 0; row < 4; row++)
+        {
+            for (int column = 0; column < 4; column++)
+            {
+                Node current_maze_block = maze_block[row][column];
 
+                for (int t_row = 0; t_row < 3; t_row++)
+                {
+                    for (int t_column = 0; t_column < 3; t_column++)
+                    {
+                        if (current_maze_block.tile[t_row][t_column].is_blocked)
+                        {
+                            DrawRectangle((column * 10) * (t_column * 10), (row * 10) * (t_row * 10), 10, 10, WHITE);
+                        }
+                    }
+                }
+            }
+        }
+        
+    EndDrawing();
+}
+
+int main(void)
+{
+    while (!WindowShouldClose())
+    {
+        InitWindow(screen_width, screen_height, "Maze Generator");
+
+        SetTargetFPS(60);
+
+        UpdateAndDrawMaze();
     }
 
     return 0;
@@ -277,3 +317,75 @@ main()
 
 //     return 0;
 // };
+
+
+// // Update
+//         for (int x = 0; x < 4; x++)
+//         {
+//             for (int y = 0; y < 4; y++)
+//             {
+//                 if (x == 0 && y == 0) // check for upper-left-corner node
+//                 {
+//                     maze_block[x][y].player_can_walk[up] = false;
+//                     maze_block[x][y].player_can_walk[left] = false;
+//                 }
+
+//                 else if (x == 3 && y == 0) // check for upper-right-corner node
+//                 {
+//                     maze_block[x][y].player_can_walk[up] = false;
+//                     maze_block[x][y].player_can_walk[right] = false;
+//                 }
+
+//                 else if (x == 0 && y == 3) // check for lower-left-corner node
+//                 {
+//                     maze_block[x][y].player_can_walk[down] = false;
+//                     maze_block[x][y].player_can_walk[left] = false;
+//                 }
+
+//                 else if (x == 3 && y == 3) // check for lower-right-corner node
+//                 {
+//                     maze_block[x][y].player_can_walk[down] = false;
+//                     maze_block[x][y].player_can_walk[right] = false;
+//                 }
+
+
+//                 else if (y == 0) // check for upper-edge nodes
+//                 {
+//                     maze_block[x][y].player_can_walk[up] = false;
+//                 }
+
+//                 else if (x == 3) // check for right-edge nodes
+//                 {
+//                     maze_block[x][y].player_can_walk[right] = false;
+//                 }
+
+//                 else if (x == 3) // check for lower-edge nodes
+//                 {
+//                     maze_block[x][y].player_can_walk[down] = false;
+//                 }
+
+//                 else if (x == 3) // check for left-edge nodes
+//                 {
+//                     maze_block[x][y].player_can_walk[left] = false;
+//                 }
+//             }
+//         }
+
+
+// // Draw
+//         BeginDrawing();
+//         ClearBackground(BLUE);
+//         for (int x = 0; x < 4; x++)
+//         {
+//             for (int y = 0; y < 4; y++)
+//             {
+//                 maze_block[x][y].position.x = 15 * x;
+//                 maze_block[x][y].position.y = 15 * y;
+
+//                 maze_block[x][y].tile[1][1].position.x = 30 * x + 15;
+//                 maze_block[x][y].tile[1][1].position.y = 30 * y + 15;
+
+//                 DrawRectangle(maze_block[x][y].tile[1][1].position.x, maze_block[x][y].tile[1][1].position.y, 15, 15, WHITE);
+//             }
+//         }
+//         EndDrawing();
