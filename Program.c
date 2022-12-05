@@ -55,6 +55,7 @@ void InitMaze(void) // Initialize maze
 
 void GenerateMaze(void) // Generate maze
 {
+
     for (int row = 0; row < 4; row++)
     {
         for (int column = 0; column < 4; column++)
