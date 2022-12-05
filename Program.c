@@ -7,48 +7,74 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef struct Node {
+
+typedef enum neighbor
+{
+    up,
+    right,
+    down,
+    left
+} neighbor;
+
+typedef struct Node
+{
     Vector2 position;
-    bool isColored;
+    bool is_colored;
+    float width;
+    float height;
+    Color color;
+    bool is_blocked[4];
 } Node;
 
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
-static const int screenWidth = 800;
-static const int screenHeight = 450;
+static const int screen_width = 800;
+static const int screen_height = 450;
 
 Node maze_block[4][4];
 
-void GenerateMaze(void)
+void InitMaze(void) // Initialize maze
 {
-    for (size_t y = 0; y < 4; y++)
+    int row_height = 64, column_width = GetScreenWidth() / 12; // Twelve 'cause why not? (Bootstrap uses 12 columns per row)
+
+    for (int row = 0; row < 4; row++)
     {
-        for (size_t x = 0; x < 4; x++)
+        for (int column = 0; column < 4; column++)
         {
-            maze_block[y][x].isColored = rand() % 2;
+            maze_block[row][column].position.y = row * row_height;
+            maze_block[row][column].position.x = column * column_width;
+
+            maze_block[row][column].width = column_width;
+            maze_block[row][column].height = row_height;
+
+            maze_block[row][column].color = WHITE;
         }
     }
 }
 
-void DrawMaze(void)
+void GenerateMaze(void) // Generate maze
 {
-    BeginDrawing();
-
-        ClearBackground(BLUE);
-
-        for (size_t y = 0; y < 4; y++)
+    for (int row = 0; row < 4; row++)
+    {
+        for (int column = 0; column < 4; column++)
         {
-            for (size_t x = 0; x < 4; x++)
-            {
-                if (maze_block[y][x].isColored)
-                {
-                    DrawRectangle(x * 10, y * 10, 5, 5, WHITE);
-                };
-            }
+            
         }
+    }
+}
 
-    EndDrawing();
+void DrawMaze(void) // Draw maze
+{
+    ClearBackground(BLACK);
+
+    for (int row = 0; row < 4; row++)
+    {
+        for (int column = 0; column < 4; column++)
+        {
+            DrawRectangle(maze_block[row][column].position.x, maze_block[row][column].position.y, maze_block[row][column].width, maze_block[row][column].height, maze_block[row][column].color);
+        }
+    }
 }
 
 //------------------------------------------------------------------------------------
@@ -56,18 +82,23 @@ void DrawMaze(void)
 //------------------------------------------------------------------------------------
 int main(void)
 {
-    puts("test_1");
+    // Initialize
+    InitWindow(screen_width, screen_height, "Endless Maze");
 
-    while ( WindowShouldClose() )
+    InitMaze();
+
+    SetTargetFPS(60);
+
+    while (!WindowShouldClose())
     {
-        InitWindow(screenWidth, screenHeight, "Maze Generate");
-
-        SetTargetFPS(60);
-
+        // Update
         GenerateMaze();
 
+        // Draw
+        BeginDrawing();
         DrawMaze();
+        EndDrawing();
     }
-    
+
     return 0;
 };
