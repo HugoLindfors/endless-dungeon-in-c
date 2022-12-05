@@ -59,7 +59,31 @@ void GenerateMaze(void) // Generate maze
     {
         for (int column = 0; column < 4; column++)
         {
+            switch (row)
+            {
+            case 0:
+                maze_block[row][column].is_colored = true;
+                break;
             
+            case 1:
+                maze_block[row][column].is_colored = true;
+                maze_block[row][column].color = RED;
+                break;
+
+            case 2:
+                maze_block[row][column].is_colored = true;
+                maze_block[row][column].color = GREEN;
+                break;
+
+            case 3:
+                maze_block[row][column].is_colored = true;
+                maze_block[row][column].color = BLUE;
+                break;
+
+            default:
+                maze_block[row][column].is_colored = false;
+                break;
+            }
         }
     }
 }
@@ -72,7 +96,10 @@ void DrawMaze(void) // Draw maze
     {
         for (int column = 0; column < 4; column++)
         {
-            DrawRectangle(maze_block[row][column].position.x, maze_block[row][column].position.y, maze_block[row][column].width, maze_block[row][column].height, maze_block[row][column].color);
+            if (maze_block[row][column].is_colored)
+            {
+                DrawRectangle(maze_block[row][column].position.x, maze_block[row][column].position.y, maze_block[row][column].width, maze_block[row][column].height, maze_block[row][column].color);
+            }
         }
     }
 }
