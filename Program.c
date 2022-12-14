@@ -49,6 +49,16 @@ void CheckUpLogic(int row, int column)
 {
     if (row != 0 && column != 0)
     {
+        if (node[row - 1][column]._has_lower_edge || node[row + 1][column]._has_lower_edge)
+        {
+            node[row][column]._has_lower_edge = false;
+        }
+
+        if (node[row][column - 1]._has_right_edge || node[row][column + 1]._has_right_edge)
+        {
+            node[row][column]._has_right_edge = false;
+        }
+
         if (node[row - 1][column]._has_lower_edge && node[row][column - 1]._has_right_edge)
         {
             node[row][column]._has_lower_edge = false;
@@ -85,10 +95,16 @@ void CheckUpLogic(int row, int column)
             }
         }
     }
+
     else
     {
         node[row][column]._has_lower_edge = false;
         node[row][column]._has_right_edge = false;
+    }
+
+    if (node[3][2]._has_right_edge)
+    {
+        node[2][3]._has_lower_edge = false;
     }
 }
 
@@ -173,28 +189,28 @@ void DrawPlayer(void)
 void MovePlayer(void)
 {
     // UP ONE ROW
-    if (IsKeyPressed(KEY_W) && player._position.y > 50 && !node[player._active_row][player._active_column]._has_lower_edge) 
+    if (IsKeyPressed(KEY_W) && player._position.y > 50 && (!node[player._active_row][player._active_column]._has_lower_edge || IsKeyDown(KEY_G)) ) 
     { 
         player._position.y -= 100; 
         player._active_row--;
     }
 
     // LEFT ONE COLUMN
-    if (IsKeyPressed(KEY_A) && player._position.x > 50 && !node[player._active_row][player._active_column]._has_right_edge) 
+    if (IsKeyPressed(KEY_A) && player._position.x > 50 && (!node[player._active_row][player._active_column]._has_right_edge || IsKeyDown(KEY_G)) ) 
     { 
         player._position.x -= 100; 
         player._active_column--;
     }
 
     // DOWN ONE ROW
-    if (IsKeyPressed(KEY_S) && player._position.y < 350 && !node[player._active_row + 1][player._active_column]._has_lower_edge) 
+    if (IsKeyPressed(KEY_S) && player._position.y < 350 && (!node[player._active_row + 1][player._active_column]._has_lower_edge || IsKeyDown(KEY_G)) ) 
     { 
         player._position.y += 100;
         player._active_row++;
     }
 
     // RIGHT ONE COLUMN
-    if (IsKeyPressed(KEY_D) && player._position.x < 350 && !node[player._active_row][player._active_column + 1]._has_right_edge) 
+    if (IsKeyPressed(KEY_D) && player._position.x < 350 && (!node[player._active_row][player._active_column + 1]._has_right_edge || IsKeyDown(KEY_G)) ) 
     { 
         player._position.x += 100;
         player._active_column++;
