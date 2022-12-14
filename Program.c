@@ -7,12 +7,14 @@
 int screen_width = 800, screen_height = 450;
 const char screen_title[12] = "Endless Maze";
 
-typedef struct Node { bool _has_lower_edge, _has_right_edge } Node;
-typedef struct Player { Vector2 _position; Vector2 _velocity; } Player;
+typedef struct Node { bool _has_lower_edge, _has_right_edge; } Node;
+typedef struct Player { Vector2 _position; Vector2 _velocity; int _active_row, _active_column; } Player;
 
 
 Node node[4][4];
 Player player;
+
+bool game_is_completed;
 
 void InitMaze(void)
 {
@@ -82,6 +84,11 @@ void CheckUpLogic(int row, int column)
                 node[row][column]._has_right_edge = false;
             }
         }
+    }
+    else
+    {
+        node[row][column]._has_lower_edge = false;
+        node[row][column]._has_right_edge = false;
     }
 }
 
@@ -153,6 +160,11 @@ void DrawMaze(void)
     DrawGoal();
 }
 
+void WinGame(void)
+{
+    if (player._position.x >= 350 && player._position.y >= 350 ) { game_is_completed = true; }
+}
+
 void DrawPlayer(void) 
 {
     DrawRectangle(player._position.x - 30, player._position.y - 30, 60, 60, WHITE);
@@ -160,31 +172,71 @@ void DrawPlayer(void)
 
 void MovePlayer(void)
 {
-    if(IsKeyPressed(KEY_W) && player._position.y > 50) { player._position.y -= 100; }
-    if(IsKeyPressed(KEY_A) && player._position.x > 50) { player._position.x -= 100; }
-    if(IsKeyPressed(KEY_S) && player._position.y < 350) { player._position.y += 100; }
-    if(IsKeyPressed(KEY_D) && player._position.x < 350) { player._position.x += 100; }
+    // UP ONE ROW
+    if (IsKeyPressed(KEY_W) && player._position.y > 50 && !node[player._active_row][player._active_column]._has_lower_edge) 
+    { 
+        player._position.y -= 100; 
+        player._active_row--;
+    }
+
+    // LEFT ONE COLUMN
+    if (IsKeyPressed(KEY_A) && player._position.x > 50 && !node[player._active_row][player._active_column]._has_right_edge) 
+    { 
+        player._position.x -= 100; 
+        player._active_column--;
+    }
+
+    // DOWN ONE ROW
+    if (IsKeyPressed(KEY_S) && player._position.y < 350 && !node[player._active_row + 1][player._active_column]._has_lower_edge) 
+    { 
+        player._position.y += 100;
+        player._active_row++;
+    }
+
+    // RIGHT ONE COLUMN
+    if (IsKeyPressed(KEY_D) && player._position.x < 350 && !node[player._active_row][player._active_column + 1]._has_right_edge) 
+    { 
+        player._position.x += 100;
+        player._active_column++;
+    }
 }
 
 int main(void)
 {
+    game_is_completed = false;
+
     player._position = (Vector2){50, 50};
+
+    player._active_row = player._active_column = 0;
 
     InitWindow(screen_width, screen_height, screen_title);
 
     SetTargetFPS(60);
 
     InitMaze();
-
+    
     GenerateMaze();
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        ClearBackground(BLACK);
-        DrawMaze();
-        MovePlayer();
-        DrawPlayer();
+
+        if (!game_is_completed)
+        {
+            ClearBackground(BLACK);
+            DrawMaze();
+            MovePlayer();
+            DrawPlayer();
+            WinGame();
+        }
+
+        if (game_is_completed)
+        {
+            ClearBackground(BLACK);
+            DrawText("You won!", GetScreenWidth() / 2, GetScreenHeight() / 2, 16, GREEN);
+            main();
+        }
+
         EndDrawing();
     }
 
