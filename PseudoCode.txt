@@ -1,0 +1,28 @@
+int main(void)
+{
+    Init commonalities between all possible mazes, that the outer border is always filled etc.
+        The outer border will always be colored, so don't bother about it.
+
+    Randomly generate a maze, it doesn't have to be unique; there'll always be the tiny possibility that two identical mazes are generated in a row.
+        Make sure that all areas are connected
+
+    Draw out the maze to the user.
+        Just imitate the data created in step 1 and 2 and imitate it.
+
+    return 0;
+}
+
+Every maze will be four-by-four. Every block has four edges and at maximum four neighbors, at minumum two (the corner-pieces).
+
+Some edges are common, or shared, for instance, 0-0's right edge is 0-1's left.
+    Therefore they need to be synced.
+    One solution would be that edges are pre-defined – not all blocks have four edges.
+        The systemn would favor one direction. All blocks have a bottom and right edge. The uppermost row and the leftmost column would have additional edges.
+
+
+PLAYER MOVEMENT:
+    The player has info about what node it's located on. Every node has a bool if it's active or not.
+        If it's active, then it will look to its neighbors below and to the right. Are they blocked? If so:
+            Look at the up
+
+

@@ -117,10 +117,11 @@ int main(void)
 
     SetTargetFPS(60);
 
+    GenerateMaze();
+    
     while (!WindowShouldClose())
     {
         // Update
-        GenerateMaze();
 
         // Draw
         BeginDrawing();
