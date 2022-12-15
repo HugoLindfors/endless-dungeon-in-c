@@ -10,40 +10,10 @@ const char screen_title[12] = "Endless Maze";
 typedef struct Node { bool _has_lower_edge, _has_right_edge; } Node;
 typedef struct Player { Vector2 _position; Vector2 _velocity; int _active_row, _active_column; } Player;
 
-
 Node node[4][4];
 Player player;
 
 bool game_is_completed;
-
-void InitMaze(void)
-{
-    for (size_t row = 0; row < 4; row++)
-    {
-        for (size_t column = 0; column < 4; column++)
-        {
-            if (row == 4)
-            {
-                node[row][column]._has_lower_edge = false;
-            }
-
-            else
-            {
-                node[row][column]._has_lower_edge = true;
-            }
-
-            if (column == 4)
-            {
-                node[row][column]._has_right_edge = false;
-            }
-
-            else
-            {
-                node[row][column]._has_right_edge = true;
-            }
-        }
-    }
-}
 
 void CheckUpLogic(int row, int column)
 {
@@ -68,16 +38,8 @@ void CheckUpLogic(int row, int column)
         if (node[row - 1][column]._has_lower_edge)
         {
             int random_variable = rand() % 2;
-
-            if (random_variable)
-            {
-                node[row][column]._has_lower_edge = false;
-            }
-
-            if (!random_variable)
-            {
-                node[row][column]._has_right_edge = false;
-            }
+            node[row][column]._has_lower_edge = !random_variable;
+            node[row][column]._has_right_edge = random_variable;
         }
 
         if (node[row][column - 1]._has_right_edge)
@@ -95,7 +57,6 @@ void CheckUpLogic(int row, int column)
             }
         }
     }
-
     else
     {
         node[row][column]._has_lower_edge = false;
@@ -108,19 +69,37 @@ void CheckUpLogic(int row, int column)
     }
 }
 
-void CleanUpMaze(void)
+
+void InitMaze(void)
 {
+    player._position = (Vector2){50, 50};
+
+    player._active_row = player._active_column = 0;
+
     for (size_t row = 0; row < 4; row++)
     {
         for (size_t column = 0; column < 4; column++)
         {
-            CheckUpLogic(row, column);
+            if (row == 3)
+            {
+                node[row][column]._has_lower_edge = false;
+            }
+            else
+            {
+                node[row][column]._has_lower_edge = true;
+            }
+
+            if (column == 3)
+            {
+                node[row][column]._has_right_edge = false;
+            }
+            else
+            {
+                node[row][column]._has_right_edge = true;
+            }
         }
     }
-}
 
-void GenerateMaze(void)
-{
     for (size_t row = 0; row < 4; row++)
     {
         for (size_t column = 0; column < 4; column++)
@@ -137,7 +116,13 @@ void GenerateMaze(void)
         }
     }
 
-    CleanUpMaze();
+    for (size_t row = 0; row < 4; row++)
+    {
+        for (size_t column = 0; column < 4; column++)
+        {
+            CheckUpLogic(row, column);
+        }
+    }
 }
 
 void DrawSurrounding(void)
@@ -146,11 +131,6 @@ void DrawSurrounding(void)
     DrawRectangle(0, 0, 5, 400, WHITE);
     DrawRectangle(0, 400, 400, 5, WHITE);
     DrawRectangle(400, 0, 5, 400, WHITE);
-}
-
-void DrawGoal(void)
-{
-    DrawRectangle(320, 320, 60, 60, RED);
 }
 
 void DrawMaze(void)
@@ -173,7 +153,8 @@ void DrawMaze(void)
         }
     }
 
-    DrawGoal();
+    //Draw goal:
+    DrawRectangle(320, 320, 60, 60, RED);
 }
 
 void WinGame(void)
@@ -219,42 +200,33 @@ void MovePlayer(void)
 
 int main(void)
 {
-    game_is_completed = false;
-
-    player._position = (Vector2){50, 50};
-
-    player._active_row = player._active_column = 0;
 
     InitWindow(screen_width, screen_height, screen_title);
-
     SetTargetFPS(60);
-
-    InitMaze();
     
-    GenerateMaze();
+    InitMaze();
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
+        ClearBackground(BLACK);
 
         if (!game_is_completed)
         {
-            ClearBackground(BLACK);
             DrawMaze();
             MovePlayer();
             DrawPlayer();
             WinGame();
         }
-
-        if (game_is_completed)
+        else
         {
-            ClearBackground(BLACK);
             DrawText("You won!", GetScreenWidth() / 2, GetScreenHeight() / 2, 16, GREEN);
-            main();
+            if (IsKeyPressed(KEY_SPACE)) {
+                game_is_completed = false;
+                InitMaze();
+            }
         }
 
         EndDrawing();
     }
-
-    return 0;
 }
